@@ -1,0 +1,22 @@
+run:
+  concurrency: 4
+  timeout: 5m
+  issues-exit-code: 2
+  tests: false
+  build-tags: []
+  modules-download-mode: readonly
+  allow-parallel-runners: true
+  allow-serial-runners: true
+linters:
+  enable-all: false
+  disable-all: false
+  disable:
+    - wsl
+    - depguard
+    - varnamelen
+    - tagliatelle
+    - nlreturn
+  fast: false
+severity:
+  default-severity: warn
+  case-sensitive: false
