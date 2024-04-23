@@ -2,12 +2,16 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"notion-helper/internal/datastruct"
 	"notion-helper/internal/repository"
+	"strings"
 	"sync"
+	"time"
 
+	"github.com/chromedp/chromedp"
 	html "github.com/levigross/exp-html"
 	"github.com/rs/zerolog/log"
 )
@@ -96,6 +100,23 @@ func (s *NotionService) FillEmptyTitle(ctx context.Context, link string) error {
 }
 
 func (s *NotionService) getSeoTitle(ctx context.Context, link string) (string, error) {
+	unsupportedDomain := []string{
+		"x.com",
+		"twitter.com",
+	}
+
+	isUnsupported := false
+
+	for _, domain := range unsupportedDomain {
+		if strings.Contains(link, domain) {
+			isUnsupported = true
+		}
+	}
+
+	if isUnsupported {
+		return s.getSeoTitleWithChrome(ctx, link)
+	}
+
 	resp, err := http.Get(link)
 	if err != nil {
 		log.Error().Err(err).Msg("Error while get seo title")
@@ -126,6 +147,44 @@ func parseHTMLForTitle(r io.Reader) (string, error) {
 	}
 
 	return "", nil // ASK: Why this is unreachable??
+}
+
+func (s *NotionService) getSeoTitleWithChrome(ctx context.Context, link string) (string, error) {
+	ctx, cancel := chromedp.NewContext(context.Background())
+	defer cancel()
+
+	timeoutCtx, cancelTimeout := context.WithTimeout(ctx, 10*time.Second)
+	defer cancelTimeout()
+
+	var title, htmlContent string
+	err := chromedp.Run(timeoutCtx,
+		chromedp.Navigate(link), // Navigate to the page
+		// chromedp.WaitVisible(`title`, chromedp.ByQuery), // Wait until the title element is visible
+		chromedp.OuterHTML("html", &htmlContent, chromedp.ByQuery),
+		// chromedp.ActionFunc(func(ctx context.Context) error {
+		// 	for {
+		// 		err := chromedp.Title(&title).Do(ctx)
+		// 		if err != nil {
+		// 			return err
+		// 		}
+		// 		if strings.TrimSpace(title) != "" {
+		// 			break
+		// 		}
+		// 		time.Sleep(500 * time.Millisecond)
+		// 	}
+		// 	return nil
+		// }),
+	)
+
+	fmt.Println(htmlContent)
+
+	if err != nil {
+		log.Error().Err(err).Str("HTML", htmlContent).Msg("Failed to retrieve title")
+		return "", err
+	}
+
+	return title, nil
+
 }
 
 // QnA
