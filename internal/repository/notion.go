@@ -2,11 +2,14 @@ package repository
 
 import (
 	"context"
+	"notion-helper/internal/datastruct"
+	"os"
 
 	"github.com/jomei/notionapi"
 )
 
 type NotionRepositoryInterface interface {
+	GetAllLinks(ctx context.Context) ([]datastruct.NotionLink, error)
 }
 
 type NotionRepository struct {
@@ -21,6 +24,15 @@ func NewNotionRepository(notion *notionapi.Client) *NotionRepository {
 	}
 }
 
-func (r NotionRepository) GetAllLinks(ctx context.Context) {
-	// TODO: later
+func (r NotionRepository) GetAllLinks(ctx context.Context) ([]datastruct.NotionLink, error) {
+	databaseId := os.Getenv("NOTION_PAGE_ID")
+
+	_, err := r.notion.Database.Get(ctx, notionapi.DatabaseID(databaseId))
+
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, nil
+
 }
