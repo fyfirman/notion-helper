@@ -6,6 +6,7 @@ import (
 	"notion-helper/internal/helper"
 	"notion-helper/internal/repository"
 	"notion-helper/internal/service"
+	"os"
 	"time"
 
 	"github.com/go-co-op/gocron"
@@ -19,7 +20,9 @@ func main() {
 
 	e := echo.New()
 
-	notion := notionapi.NewClient("your_integration_token")
+	notionToken := os.Getenv("NOTION_TOKEN")
+
+	notion := notionapi.NewClient(notionapi.Token(notionToken))
 
 	notionRepo := repository.NewNotionRepository(notion)
 

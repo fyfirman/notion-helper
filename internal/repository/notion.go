@@ -25,7 +25,7 @@ func NewNotionRepository(notion *notionapi.Client) *NotionRepository {
 }
 
 func (r NotionRepository) GetAllLinks(ctx context.Context) ([]datastruct.NotionLink, error) {
-	databaseId := os.Getenv("NOTION_PAGE_ID")
+	databaseId := os.Getenv("NOTION_DATABASE_ID")
 
 	_, err := r.notion.Database.Get(ctx, notionapi.DatabaseID(databaseId))
 
