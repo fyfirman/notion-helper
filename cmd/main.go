@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/go-co-op/gocron"
+	"github.com/joho/godotenv"
 	"github.com/jomei/notionapi"
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
@@ -17,6 +18,12 @@ import (
 
 func main() {
 	helper.InitLog()
+
+	err := godotenv.Load(".env")
+
+	if err != nil {
+		panic(err.Error())
+	}
 
 	e := echo.New()
 
@@ -32,8 +39,7 @@ func main() {
 
 	s := gocron.NewScheduler(time.UTC)
 
-	// TODO: change later
-	s.Every(5).Seconds().Do(func() {
+	s.Cron(os.Getenv("CRON_FILLING_EMPTY_LINKS")).Do(func() {
 		schedulerHandler.FillEmptyTitleLinks(context.Background())
 	})
 

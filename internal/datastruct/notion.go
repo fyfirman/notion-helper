@@ -1,5 +1,8 @@
 package datastruct
 
 type NotionLink struct {
-	Title string
+	Name    string
+	URL     string
+	Tags    string
+	Created string
 }
