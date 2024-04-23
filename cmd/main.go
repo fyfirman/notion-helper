@@ -1,6 +1,7 @@
 package main
 
 import (
+	"notion-helper/internal/app"
 	"notion-helper/internal/helper"
 	"notion-helper/internal/repository"
 	"notion-helper/internal/service"
@@ -16,5 +17,7 @@ func main() {
 	notionRepo := repository.NewNotionRepository(notion)
 
 	notionService := service.NewNotionService(notionRepo)
+
+	scheduler := app.NewScheduler(notionService)
 
 }
